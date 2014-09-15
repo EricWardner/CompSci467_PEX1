@@ -1,44 +1,67 @@
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
 
 
 
 public class BingoServer{		
 	 	
-	public static int numWaiting = 0;
-	public static int numPlaying = 0;
-	 
-	public static int[] port = new int[1000];
-	public static InetAddress[] ip = new InetAddress[1000];
+	ArrayList<Client> clients = new ArrayList<Client>();
+	public BingoServer(){
+		try{
+			waitingLobby();
+			
+			if(clients.size() >= 2){
+				
+				while(true){			
+					ClientPlayer gamePlayer = new ClientPlayer(clients);
+					Thread gameThread = new Thread(gamePlayer);
+					gameThread.start();
+					
+					clients.clear();
+					while(gameThread.isAlive()){
+						waitingLobby();
+					}
+					
+				}
+			}
+		}catch(Exception e){
+			
+		}
+	}
+	public void waitingLobby() throws IOException{
+		String playerAccepted = "PlayerAccepted";
+		
+		
+		DatagramSocket s = new DatagramSocket(2016);
+		s.setSoTimeout(16);
+		byte[] recvData = new byte[512];
+		DatagramPacket recvPacket = new DatagramPacket(recvData, recvData.length);
+		s.receive(recvPacket);
+		
+		Client player = new Client(recvPacket.getAddress(), recvPacket.getPort());
+		
+		byte[] sendData = new byte[512];
+		sendData = playerAccepted.getBytes();
+		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, recvPacket.getAddress(), recvPacket.getPort());
+		s.send(sendPacket);
+		
+		clients.add(player);
+		
+	}
 	
 	public static void main(String[] args) throws InterruptedException, SocketException{
 		
-		DatagramSocket s = new DatagramSocket(2016);		
-	  	
-		ClientConnector initializer;	
-		ClientPlayer gamePlayer;
-		
-		while(true){
-			initializer = new ClientConnector(s);			
-			Thread initThread = new Thread(initializer);
-			gamePlayer = new ClientPlayer(s);
-			Thread gameThread = new Thread(gamePlayer);
-			//start waiting room
-			initThread.start();
-			//wait for waiting room thread to end
-			initThread.join();
-			//start game playing thread
-			gameThread.start();
-			//start next waiting room
-			initThread.start();
-			//wait for game thread to end and repeat loop
-			gameThread.join();
-		}	
-		
+		new BingoServer();
 		
 	}
+	
+	
 }
+
 	
 	
 	
