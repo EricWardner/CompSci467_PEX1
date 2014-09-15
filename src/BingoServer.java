@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 
@@ -10,33 +9,51 @@ import java.util.ArrayList;
 public class BingoServer{		
 	 	
 	ArrayList<Client> clients = new ArrayList<Client>();
+	ArrayList<Client> clients2 = new ArrayList<Client>();
 	public BingoServer(){
-		try{
-			waitingLobby();
-			
-			if(clients.size() >= 2){
-				
-				while(true){			
-					ClientPlayer gamePlayer = new ClientPlayer(clients);
-					Thread gameThread = new Thread(gamePlayer);
-					gameThread.start();
-					
-					clients.clear();
-					while(gameThread.isAlive()){
-						waitingLobby();
-					}
-					
+		
+		try {
+			DatagramSocket s = new DatagramSocket(2016);
+		
+		
+			while(clients.size() < 2){
+				try{
+					waitingLobby(s);
+				}catch(Exception e){
+					System.out.println("waiting for players");
 				}
 			}
-		}catch(Exception e){
 			
+			
+			
+				
+		while(true){		
+			clients2.addAll(clients);
+			ClientPlayer gamePlayer = new ClientPlayer(clients2,s);
+			Thread gameThread = new Thread(gamePlayer);
+			gameThread.start();
+					
+			clients.clear();
+			while(gameThread.isAlive()){
+				try {
+					waitingLobby(s);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					
+				}
+			}					
+				
 		}
+		} catch (SocketException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 	}
-	public void waitingLobby() throws IOException{
-		String playerAccepted = "PlayerAccepted";
 		
+	public void waitingLobby(DatagramSocket s) throws IOException{
+		String playerAccepted = "playeraccepted";		
 		
-		DatagramSocket s = new DatagramSocket(2016);
 		s.setSoTimeout(16);
 		byte[] recvData = new byte[512];
 		DatagramPacket recvPacket = new DatagramPacket(recvData, recvData.length);
