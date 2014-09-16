@@ -65,8 +65,8 @@ class BingoClient {
 			SocketTimeoutException {
 		// TODO Auto-generated method stub
 		DatagramSocket clientSocket = new DatagramSocket();
-		//sets timeout to 15 seconds
-		clientSocket.setSoTimeout(15000);
+		//sets timeout to 60 seconds
+		clientSocket.setSoTimeout(60000);
 		//sets ip address from input
 		InetAddress IPAddress = InetAddress.getByName(ip);
 		byte[] sendData = new byte[128];
