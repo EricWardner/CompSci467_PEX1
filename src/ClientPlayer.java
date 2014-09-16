@@ -24,11 +24,11 @@ public class ClientPlayer implements Runnable{
 				  picks.add(i);
 			  }
 			  Collections.shuffle(picks);
-			  System.out.println("game being run");
-			  boolean gameOver = false;
+			  //System.out.println("game being run");
+			  //boolean gameOver = false;
 			  int winner = 0;
 			  byte[] sendData = new byte[512];
-			  System.out.println(clients.size());
+			  //System.out.println(clients.size());
 			
 			  for(int i = 0; i < clients.size(); i++){
 				  BingoCard card = new BingoCard();
@@ -40,7 +40,7 @@ public class ClientPlayer implements Runnable{
 					s.send(sendPacket);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println("unable to send");
 				}
 			  }
 			  
@@ -65,20 +65,20 @@ public class ClientPlayer implements Runnable{
 								s.send(sendPacket);
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
-								e.printStackTrace();
+								System.out.println("unable to send");
 							}
 						  }
 						  
 						  						  
 					  }
-					  System.out.println(w);
+					  //System.out.println(w);
 					  if(w != 75){
 						  DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clients.get(i).ip, clients.get(i).port);
 						  try {
 							s.send(sendPacket);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
-							e.printStackTrace();
+							System.out.println("unable to send");
 						}
 					  }
 					  
@@ -87,7 +87,7 @@ public class ClientPlayer implements Runnable{
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.out.println("unable to sleep");
 					}
 
 				  
