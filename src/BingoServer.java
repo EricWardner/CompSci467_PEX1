@@ -27,21 +27,34 @@ public class BingoServer{
 			
 			
 				
-		while(true){		
+		while(true){
 			clients2.addAll(clients);
 			ClientPlayer gamePlayer = new ClientPlayer(clients2,s);
 			Thread gameThread = new Thread(gamePlayer);
-			gameThread.start();
-					
-			clients.clear();
-			while(gameThread.isAlive()){
+			
+			if(clients.size() >= 2){				
+				
+				gameThread.start();
+						
+				clients.clear();
+			}else{
 				try {
 					waitingLobby(s);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					
 				}
-			}					
+			}
+				while(gameThread.isAlive()){
+					try {
+						waitingLobby(s);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						
+					}
+				}
+				clients2.clear();
+			
 				
 		}
 		} catch (SocketException e1) {
@@ -58,15 +71,18 @@ public class BingoServer{
 		byte[] recvData = new byte[512];
 		DatagramPacket recvPacket = new DatagramPacket(recvData, recvData.length);
 		s.receive(recvPacket);
-		
-		Client player = new Client(recvPacket.getAddress(), recvPacket.getPort());
-		
-		byte[] sendData = new byte[512];
-		sendData = playerAccepted.getBytes();
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, recvPacket.getAddress(), recvPacket.getPort());
-		s.send(sendPacket);
-		
-		clients.add(player);
+		String clientData = new String(recvPacket.getData());
+		System.out.println(clientData);
+		if(clientData.contains("joingame")){
+			Client player = new Client(recvPacket.getAddress(), recvPacket.getPort());
+			
+			byte[] sendData = new byte[512];
+			sendData = playerAccepted.getBytes();
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, recvPacket.getAddress(), recvPacket.getPort());
+			s.send(sendPacket);
+			
+			clients.add(player);
+		}
 		
 	}
 	
